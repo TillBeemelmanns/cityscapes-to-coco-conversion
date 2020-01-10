@@ -21,7 +21,9 @@ data/
         ├── train
         └── val
 main.py
-labels.py
+inspect_coco.py
+README.md
+requirements.txt
 ```
 
 ## Installation
