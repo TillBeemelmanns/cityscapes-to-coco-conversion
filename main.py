@@ -10,7 +10,7 @@ import sys
 # Image processing
 # Check if PIL is actually Pillow as expected
 try:
-    from PIL import PILLOW_VERSION
+    from PIL import __version__
 except:
     print("Please install the module 'Pillow' for image processing, e.g.")
     print("pip install pillow")
