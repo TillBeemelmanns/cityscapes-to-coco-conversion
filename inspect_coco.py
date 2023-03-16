@@ -5,6 +5,7 @@ import argparse
 import utils
 from utils import visualize
 from utils.utils import CocoDataset
+import numpy as np
 
 
 def main(coco_dir, num_plot_examples):
@@ -20,14 +21,14 @@ def main(coco_dir, num_plot_examples):
 
     # plot masks for each class
     for _ in range(num_plot_examples):
-        random_image_id = random.choice(dataset.image_ids)
+        random_image_id = np.random.choice(dataset.image_ids)
         image = dataset.load_image(random_image_id)
         mask, class_ids = dataset.load_mask(random_image_id)
         visualize.display_top_masks(image, mask, class_ids, dataset.class_names)
 
     # Plot display instances
     for _ in range(num_plot_examples):
-        random_image_id = random.choice(dataset.image_ids)
+        random_image_id = np.random.choice(dataset.image_ids)
         image = dataset.load_image(random_image_id)
         mask, class_ids = dataset.load_mask(random_image_id)
         bbox = utils.utils.extract_bboxes(mask)

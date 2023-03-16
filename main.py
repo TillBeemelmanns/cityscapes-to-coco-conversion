@@ -6,6 +6,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import sys
+from typing import OrderedDict
 
 # Image processing
 # Check if PIL is actually Pillow as expected
@@ -132,18 +133,27 @@ def convert_cityscapes_instance_only(data_dir, out_dir):
     img_id = 0
     ann_id = 0
     cat_id = 1
-    category_dict = {}
+    category_dict = OrderedDict()
 
     category_instancesonly = [
         'person',
         'rider',
         'car',
-        'truck',
-        'bus',
-        'train',
-        'motorcycle',
         'bicycle',
+        'motorcycle',
+        'bus',
+        'truck',
+        'train',
     ]
+
+    # To enable other possible categories like "traffic sign", "traffic light", "pole",
+    # the contours must be extracted from _gtFine_labelIds.png images, where the labels are 
+    # encoded in the colors. I have not tried to do it with findContours from cv2, but it should 
+    # work, with some little modifications to the rest of the code
+    
+    # Fill the category dict in an ordered manner
+    for i, cat in enumerate(category_instancesonly):
+        category_dict[cat] = i + 1  # +1 to start from 1 (category 0 is for BG in Faster RCNN)
 
     for data_set, ann_dir in zip(sets, ann_dirs):
         print('Starting %s' % data_set)
@@ -195,9 +205,10 @@ def convert_cityscapes_instance_only(data_dir, out_dir):
                             ann['image_id'] = image['id']
                             ann['segmentation'] = obj['contours']
 
-                            if object_cls not in category_dict:
-                                category_dict[object_cls] = cat_id
-                                cat_id += 1
+                            # if object_cls not in category_dict:
+                            #     category_dict[object_cls] = cat_id
+                            #     cat_id += 1
+
                             ann['category_id'] = category_dict[object_cls]
                             ann['iscrowd'] = 0
                             ann['area'] = obj['pixelCount']
