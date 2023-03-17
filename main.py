@@ -146,10 +146,7 @@ def convert_cityscapes_instance_only(data_dir, out_dir):
         'train',
     ]
 
-    # To enable other possible categories like "traffic sign", "traffic light", "pole",
-    # the contours must be extracted from _gtFine_labelIds.png images, where the labels are 
-    # encoded in the colors. I have not tried to do it with findContours from cv2, but it should 
-    # work, with some little modifications to the rest of the code
+    # It is not possible to enable more classes as there is no instance annotation of that classes
     
     # Fill the category dict in an ordered manner
     for i, cat in enumerate(category_instancesonly):
@@ -195,6 +192,8 @@ def convert_cityscapes_instance_only(data_dir, out_dir):
                                 continue  # skip non-instance categories
 
                             len_p = [len(p) for p in obj['contours']]
+                            if object_cls == 'traffic sign':
+                                print("New label found") 
                             if min(len_p) <= 4:
                                 print('Warning: invalid contours.')
                                 continue  # skip non-instance categories
