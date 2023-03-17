@@ -81,6 +81,8 @@ CLASSES: [
 ]
 ```
 
+It is not possible to enable more classes as there is no instance annotation
+
 Sometimes the segmentation annotations are so small that no reasonable big enough object could be created. In this case the, the object will be skipped and the following message is printed:
 
 ```
