@@ -7,6 +7,7 @@ from __future__ import unicode_literals
 
 import sys
 from typing import OrderedDict
+from pathlib import Path
 
 # Image processing
 # Check if PIL is actually Pillow as expected
@@ -172,11 +173,13 @@ def convert_cityscapes_instance_only(data_dir, out_dir):
                     img_id += 1
                     image['width'] = json_ann['imgWidth']
                     image['height'] = json_ann['imgHeight']
-                    image['file_name'] = os.path.join("leftImg8bit",
-                                                      data_set.split("/")[-1],
-                                                      filename.split('_')[0],
-                                                      filename.replace("_gtFine_polygons.json", '_leftImg8bit.png'))
-                    image['seg_file_name'] = filename.replace("_polygons.json", "_instanceIds.png")
+                    image['file_name'] = Path(
+                        os.path.join("leftImg8bit",
+                        data_set.split("/")[-1],
+                        filename.split('_')[0],
+                        filename.replace("_gtFine_polygons.json", '_leftImg8bit.png'))
+                        ).as_posix()
+                    image['seg_file_name'] = Path(filename.replace("_polygons.json", "_instanceIds.png")).as_posix()
                     images.append(image)
 
                     fullname = os.path.join(root, image['seg_file_name'])
