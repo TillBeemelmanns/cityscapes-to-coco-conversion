@@ -6,6 +6,8 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import sys
+from typing import OrderedDict
+from pathlib import Path
 
 # Image processing
 # Check if PIL is actually Pillow as expected
@@ -132,18 +134,24 @@ def convert_cityscapes_instance_only(data_dir, out_dir):
     img_id = 0
     ann_id = 0
     cat_id = 1
-    category_dict = {}
+    category_dict = OrderedDict()
 
     category_instancesonly = [
         'person',
         'rider',
         'car',
-        'truck',
-        'bus',
-        'train',
-        'motorcycle',
         'bicycle',
+        'motorcycle',
+        'bus',
+        'truck',
+        'train',
     ]
+
+    # It is not possible to enable more classes as there is no instance annotation of that classes
+    
+    # Fill the category dict in an ordered manner
+    for i, cat in enumerate(category_instancesonly):
+        category_dict[cat] = i + 1  # +1 to start from 1 (category 0 is for BG in Faster RCNN)
 
     for data_set, ann_dir in zip(sets, ann_dirs):
         print('Starting %s' % data_set)
@@ -165,11 +173,13 @@ def convert_cityscapes_instance_only(data_dir, out_dir):
                     img_id += 1
                     image['width'] = json_ann['imgWidth']
                     image['height'] = json_ann['imgHeight']
-                    image['file_name'] = os.path.join("leftImg8bit",
-                                                      data_set.split("/")[-1],
-                                                      filename.split('_')[0],
-                                                      filename.replace("_gtFine_polygons.json", '_leftImg8bit.png'))
-                    image['seg_file_name'] = filename.replace("_polygons.json", "_instanceIds.png")
+                    image['file_name'] = Path(
+                        os.path.join("leftImg8bit",
+                        data_set.split("/")[-1],
+                        filename.split('_')[0],
+                        filename.replace("_gtFine_polygons.json", '_leftImg8bit.png'))
+                        ).as_posix()
+                    image['seg_file_name'] = Path(filename.replace("_polygons.json", "_instanceIds.png")).as_posix()
                     images.append(image)
 
                     fullname = os.path.join(root, image['seg_file_name'])
@@ -185,6 +195,8 @@ def convert_cityscapes_instance_only(data_dir, out_dir):
                                 continue  # skip non-instance categories
 
                             len_p = [len(p) for p in obj['contours']]
+                            if object_cls == 'traffic sign':
+                                print("New label found") 
                             if min(len_p) <= 4:
                                 print('Warning: invalid contours.')
                                 continue  # skip non-instance categories
@@ -195,9 +207,10 @@ def convert_cityscapes_instance_only(data_dir, out_dir):
                             ann['image_id'] = image['id']
                             ann['segmentation'] = obj['contours']
 
-                            if object_cls not in category_dict:
-                                category_dict[object_cls] = cat_id
-                                cat_id += 1
+                            # if object_cls not in category_dict:
+                            #     category_dict[object_cls] = cat_id
+                            #     cat_id += 1
+
                             ann['category_id'] = category_dict[object_cls]
                             ann['iscrowd'] = 0
                             ann['area'] = obj['pixelCount']
